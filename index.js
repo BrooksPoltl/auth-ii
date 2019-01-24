@@ -2,6 +2,7 @@ const env = require('dotenv').config()
 const express = require('express');
 const helmet = require('helmet')
 const knex = require('knex')
+const cors = require('cors')
 const bcrypt = require('bcryptjs')
 const knexConfig = require('./knexfile')
 const jwt = require('jsonwebtoken')
@@ -11,6 +12,7 @@ const db = knex(knexConfig.development);
 
 server.use(helmet())
 server.use(express.json())
+server.use(cors())
 
 const lock = (req,res,next)=> {
     const token = req.headers.authorization;
@@ -79,8 +81,8 @@ server.post('/api/login',(req, res) => {
     })
 })
 
-server.get('/api/users', lock, checkDepartment('Admin'),(req,res)=>{
-    db('users').where({department: 'Admin'}).select('id','username','name','department')
+server.get('/api/users', lock,(req,res)=>{
+    db('users').select('id','username','name','department')
     .then(user=>{
         res.status(200).json({user, decodedToken: req.decodedToken})
     })
